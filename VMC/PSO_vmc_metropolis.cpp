@@ -1,3 +1,5 @@
+// Variational Monte Carlo using Metropolis sampling for helium like atoms with 3 different trial wave functions optimized via the swarm particle optimization (PSO) method
+
 #include <iostream>
 #include <cmath>
 #include <cstdlib>
