@@ -1,3 +1,5 @@
+// Diffusion Monte Carlo for hydrogen atom
+
 #include<iostream>
 #include<fstream>
 #include<cmath>
