@@ -1,0 +1,104 @@
+// // Variational Monte Carlo for hydrogen atom using Metropolis–Hastings to calculate the ground state energy and variance
+
+
+#include<iostream>
+#include<cstdlib>
+#include<cmath>
+#include<iomanip>
+#include<ctime>
+#include<fstream>
+
+#define t 0.05
+#define PI 4.*atan(1.)
+
+using namespace std;
+
+
+double loi_uniforme(){
+	return (rand()/(double)RAND_MAX);
+}
+
+double  wf(double xi, double a){
+	return (exp(-a*xi));
+}
+ 
+double LocalEnergy(double xi, double a){
+	return -(1./xi)-a*(a-(2/xi))/2.;
+}
+
+double alea(){
+	return (double)rand()/RAND_MAX;}
+	
+double F(double xi, double a){
+	return (-2*a); }
+		
+	
+double loi_normale(double mu,double sigma ){
+	double u,v,x;
+	u=loi_uniforme();
+	v=loi_uniforme();
+	x=sqrt(-2*log(u))*cos(2*PI*v);
+	return (sigma*x+mu);}
+	
+double green(double x1, double x2,double a){
+
+double x=(x1-x2-0.5*F(x2,a)*t)*(x1-x2-0.5*F(x2,a)*t);
+	return exp(-.5*x/t);} 
+	
+int main(){
+
+double a,apas=0.05,owf,nwf,x0,xi;
+double energy, energy2, variance, error;
+double ratio,ratio2;
+int mc,mcCycles=10000000;
+
+srand(time(0));
+
+ofstream f;
+f.open("h_mh_vmc.dat");
+
+   for(a=0.4; a<=1.5; a+=apas){
+
+		 //initializing position and wavefuntion
+		 x0= loi_uniforme();
+		 energy=0;
+		 energy2=0;
+		 
+		
+	for(mc=1;mc<=mcCycles ; mc++){
+		
+		 // shifting the walker
+		  owf=wf(x0,a);
+		 xi = x0 + 0.5*F(x0,a)*t + loi_normale(0,sqrt(t));
+		 nwf=wf(xi,a);
+		 if(xi >=0){
+		  
+		 nwf=wf(xi,a);
+		 
+		
+		 //Metropolis test
+		
+	    ratio2 =green(x0,xi,a)/green(xi,x0,a); 	
+	    ratio = ratio2*(xi*xi*nwf*nwf)/(x0*x0*owf*owf);
+	    double r = loi_uniforme();
+	       if( r<= ratio){
+		x0 = xi;
+		owf= nwf;} }
+	    energy+= LocalEnergy(x0,a);
+	    energy2 += LocalEnergy(x0,a) * LocalEnergy(x0,a);	
+	}
+	
+energy /= mcCycles;
+	energy2 /= mcCycles;
+	variance = energy2 - energy*energy;
+	error = sqrt(variance/mcCycles);
+	
+	
+	cout << a << "\t" << energy << "\t" << variance  << "\t" <<error<< endl;
+	f << a << "\t" << energy << "\t" <<variance <<endl;
+}
+
+ f.close();
+
+return 0;}
+
